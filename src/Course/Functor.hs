@@ -58,7 +58,7 @@ instance Functor Optional where
 -- >>> ((+1) <$> (*2)) 8
 -- 17
 instance Functor ((->) t) where
-  (<$>) = flip (.)
+  (<$>) = (.)
 
 -- just replace f with ->t in the signature of fmap
 -- (a->b) -> (t->a) -> (t->b)
