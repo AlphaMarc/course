@@ -268,7 +268,24 @@ flatten' = flatMap id
 seqOptional ::
   List (Optional a)
   -> Optional (List a)
-seqOptional = error "todo"
+seqOptional (x:.xs) = bindOptional f x 
+                       where f a = mapOptional (a:.) (seqOptional xs)
+seqOptional Nil = Full Nil
+
+-- foldright (lift2 (:.)) (Full Nil))
+
+-- seqOptional (x:.xs) = (:.) <$> x <*> seqOptional xs
+-- seqOptional Nil = Full Nil
+
+{-
+
+-}
+{-
+seqOptional (x:.xs) = case x of Full a -> case seqOptional xs of Full l ->  Full (a :. l)
+                                                                 Empty  -> Empty
+                                Empty -> Empty
+seqOptional Nil = Full Nil
+-}
 
 {-
 seqOptional l =
@@ -276,10 +293,10 @@ seqOptional l =
     (h :. t) -> 
       case h of
         Empty -> Empty
-        Full a -> a :. seqOptional(t)
-    Nil -> Full l
-
-seqOptional Nil =  Full Nil -}
+        Full a -> a :. seqOptional(t))
+    Nil -> l
+seqOptional Nil =  Full Nil
+-}
 
 
 -- | Find the first element in the list matching the predicate.

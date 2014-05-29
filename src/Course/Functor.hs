@@ -91,8 +91,7 @@ void ::
   Functor f =>
   f a
   -> f ()
-void =
-  error "todo"
+void = (<$>) (\_ -> ()) 
 
 -----------------------
 -- SUPPORT LIBRARIES --
