@@ -69,7 +69,7 @@ instance Apply Optional where
 -- >>> ((*) <*> (+2)) 3
 -- 15
 instance Apply ((->) t) where
-  (<*>) t2a2b t2a = (\t -> t2a2b t (t2a t))
+  (<*>) f g = (\t -> f t (g t))
 
 -- keep calm and replace f by ((->) t)
 --     (t -> a -> b) -> (t -> a) -> (t -> b)
@@ -99,7 +99,7 @@ lift2 ::
   -> f a
   -> f b
   -> f c
-lift2 g funca funcb = (g <$> funca) <*> funcb
+lift2 g funca = (<*>) ((<$>) g funca)
 --                    (+) <$> Full 7
 --                           Full ((+) 7) <*> Full 8
 

@@ -83,8 +83,12 @@ sequence ::
   Applicative f =>
   List (f a)
   -> f (List a)
-sequence (x:.xs) = (:.) <$> x <*> sequence xs 
-sequence Nil     = pure Nil
+sequence = foldRight ((<*>) . (<$>) (:.)) (pure Nil)
+
+-- sequence = foldRight (lift2 (:.)) (pure Nil)
+
+-- sequence (x:.xs) = (:.) <$> x <*> sequence xs 
+-- sequence Nil     = pure Nil
 
 -- | Replicate an effect a given number of times.
 --
@@ -108,7 +112,7 @@ replicateA ::
   -> f a
   -> f (List a)
 replicateA n x = if n > 1 then (:.) <$> x <*> replicateA (n-1) x
-                          else  pure <$> x  
+                          else  pure <$> x
 
 -- | Filter a list with a predicate that produces an effect.
 --
@@ -131,7 +135,32 @@ filtering ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filtering a l = error "todo"
+filtering _ Nil = pure Nil 
+filtering g (x:.xs) = lift2 (\ok -> if ok then (x:.) else id) (g x) (filtering g xs)
+
+
+
+-- go through the list and return the first element that satisfies the predicate
+-- if there is no such element return Empty
+
+-- |
+--
+-- >>> findA (Id . even) (4 :. 5 :. 6 :. Nil)
+-- Id (Full 4)
+-- >>> findA (Id . even) (7 :. 5 :. 8 :. Nil)
+-- Id (Empty)
+--
+{-findA ::
+  Applicative f =>
+  (a -> f Bool)
+  -> List a
+  -> f (Optional a)
+findA _ Nil     = pure Empty
+--     (Bool -> List a -> Optional a) -> f Bool -> f (List a) -> f (Optional a)
+findA g (x:.xs) = lift2 finder (g x) (pure xs)
+                  -- Bool -> List a -> Optional a
+                  where finder ok l = if ok then Full x else Empty
+-}
 
 -----------------------
 -- SUPPORT LIBRARIES --
