@@ -62,7 +62,13 @@ infixr 1 =<<
   f (a -> b)
   -> f a
   -> f b
-(<*>) g func = error "todo"
+-- f a   :: f (a -> b)
+-- a     :: a -> b
+-- (a-> b):: a -> b -> b
+-- (<$>) :: (a -> b)   -> f a -> f b
+-- (=<<) :: (a -> f b) -> f a -> f b
+--             
+(<*>) g func = (\f -> f <$> func) =<< g
 
 infixl 4 <*>
 
@@ -129,7 +135,6 @@ join ffa = (\fa -> fa) =<< ffa
 -- | Implement a flipped version of @(=<<)@, however, use only
 -- @join@ and @(<$>)@.
 -- Pronounced, bind flipped.
---
 -- >>> ((+10) >>= (*)) 7
 -- 119
 (>>=) ::
@@ -152,8 +157,7 @@ infixl 1 >>=
   -> (a -> f b)
   -> a
   -> f c
-(<=<) =
-  error "todo"
+(<=<) f1 f2 a = join $ f1 <$> f2 a 
 
 infixr 1 <=<
 
