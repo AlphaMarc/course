@@ -11,7 +11,6 @@ import Course.Apply
 import Course.Bind
 import Course.Functor
 import Course.List
-
 {-
 
 Useful Functions --
@@ -62,8 +61,9 @@ the contents of c
 -- /Tip:/ use @getArgs@ and @run@
 main ::
   IO ()
-main =
-  error "todo"
+main = do x <- getArgs
+          case x of Nil    -> return ()
+                    (x:.xs)-> run x
 
 type FilePath =
   Chars
@@ -72,31 +72,38 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run =
-  error "todo"
+run x = (\(a,b) -> printFiles =<< (getFiles $ lines b)) =<< getFile x
+
 
 getFiles ::
   List FilePath
   -> IO (List (FilePath, Chars))
-getFiles =
-  error "todo"
+getFiles l = sequence $ map getFile l
 
 getFile ::
   FilePath
   -> IO (FilePath, Chars)
-getFile =
-  error "todo"
+getFile a = do
+  fileContent <- readFile a
+  return (a,fileContent)
 
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles =
-  error "todo"
+printFiles ((a,b):.xs) =  do printFile a b
+                             printFiles xs
+printFiles Nil         = return ()
 
 printFile ::
   FilePath
   -> Chars
   -> IO ()
-printFile =
-  error "todo"
+printFile fp content = do 
+                       putStrLn $ (listh "============ ") ++ fp
+                       putStrLn content
 
+{-
+stringToChars ::
+  [Char] -> Chars
+stringToChars = foldr (:.) Nil 
+-}

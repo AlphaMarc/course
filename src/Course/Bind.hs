@@ -127,7 +127,6 @@ join ::
 -- (=<<) :: (a -> f b) -> f a -> f b
 -- (=<<) :: (f a -> f a) -> f (f a) -> f a
 -- (<*>) :: f (f a -> a) -> f (f a) -> f a impossible
-
   f (f a)
   -> f a
 join ffa = (\fa -> fa) =<< ffa
