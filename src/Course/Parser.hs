@@ -51,7 +51,7 @@ instance Show a => Show (ParseResult a) where
   show (Result i a) =
     stringconcat ["Result >", hlist i, "< ", show a]
 
--- Function to determine is a parse result is an error.
+-- Function to determine if a parse result is an error.
 isErrorResult ::
   ParseResult a
   -> Bool
@@ -78,8 +78,7 @@ unexpectedCharParser c =
 valueParser ::
   a
   -> Parser a
-valueParser =
-  error "todo"
+valueParser a = P (\k -> Result k a) 
 
 -- | Return a parser that always fails with the given error.
 --
@@ -87,8 +86,7 @@ valueParser =
 -- True
 failed ::
   Parser a
-failed =
-  error "todo"
+failed = P(\_ -> ErrorResult Failed)
 
 -- | Return a parser that succeeds with a character off the input or fails with an error if the input is empty.
 --
@@ -99,8 +97,12 @@ failed =
 -- True
 character ::
   Parser Char
-character =
-  error "todo"
+character = P(\l -> f l)
+                    where f Nil            = ErrorResult Failed 
+                          f (x:.Nil)       = Result Nil x
+                          f (x:.xs)        = Result xs x
+                  
+
 
 -- | Return a parser that maps any succeeding result with the given function.
 --
@@ -113,8 +115,9 @@ mapParser ::
   (a -> b)
   -> Parser a
   -> Parser b
-mapParser =
-  error "todo"
+-- g i :: ParseResult a
+mapParser f (P g) = P (\i -> case g i of ErrorResult k  -> ErrorResult k
+                                         Result x a -> Result x (f a) )
 
 -- | This is @mapParser@ with the arguments flipped.
 -- It might be more helpful to use this function if you prefer this argument order.
@@ -150,8 +153,9 @@ bindParser ::
   (a -> Parser b)
   -> Parser a
   -> Parser b
-bindParser =
-  error "todo"
+-- g i :: ParseResult a
+bindParser f (P g) = P (\i -> case (g i) of ErrorResult k -> ErrorResult k
+                                            Result x a    -> let P h = f a in h x)
 
 -- | This is @bindParser@ with the arguments flipped.
 -- It might be more helpful to use this function if you prefer this argument order.
@@ -180,8 +184,8 @@ flbindParser =
   Parser a
   -> Parser b
   -> Parser b
-(>>>) =
-  error "todo"
+(>>>) (P f) (P g) = P (\i -> case f i of ErrorResult k -> ErrorResult k
+                                         Result x _    -> g x)
 
 -- | Return a parser that tries the first parser for a successful value.
 --
@@ -204,8 +208,8 @@ flbindParser =
   Parser a
   -> Parser a
   -> Parser a
-(|||) =
-  error "todo"
+(|||) (P f) (P g) = P (\i -> case f i of ErrorResult _ -> g i
+                                         Result x a    -> Result x a)
 
 infixl 3 |||
 
@@ -233,8 +237,7 @@ infixl 3 |||
 list ::
   Parser a
   -> Parser (List a)
-list =
-  error "todo"
+list = error "todo"
 
 -- | Return a parser that produces at least one value from the given parser then
 -- continues producing a list of values from the given parser (to ultimately produce a non-empty list).
@@ -272,8 +275,9 @@ list1 =
 satisfy ::
   (Char -> Bool)
   -> Parser Char
-satisfy =
-  error "todo"
+satisfy f = P $ \i -> case i of (x:.xs) -> if f x then Result xs x else ErrorResult Failed
+                                Nil     -> ErrorResult Failed
+
 
 -- | Return a parser that produces the given character but fails if
 --
@@ -284,8 +288,8 @@ satisfy =
 -- /Tip:/ Use the @satisfy@ function.
 is ::
   Char -> Parser Char
-is =
-  error "todo"
+is c = satisfy (==c)
+
 
 -- | Return a parser that produces a character between '0' and '9' but fails if
 --
@@ -296,8 +300,7 @@ is =
 -- /Tip:/ Use the @satisfy@ and @Data.Char.isDigit@ functions.
 digit ::
   Parser Char
-digit =
-  error "todo"
+digit = satisfy isDigit
 
 -- | Return a parser that produces zero or a positive integer but fails if
 --
@@ -309,8 +312,7 @@ digit =
 -- functions.
 natural ::
   Parser Int
-natural =
-  error "todo"
+natural = error "todo"
 
 --
 -- | Return a parser that produces a space character but fails if
@@ -322,8 +324,7 @@ natural =
 -- /Tip:/ Use the @satisfy@ and @Data.Char.isSpace@ functions.
 space ::
   Parser Char
-space =
-  error "todo"
+space = satisfy isSpace
 
 -- | Return a parser that produces one or more space characters
 -- (consuming until the first non-space) but fails if

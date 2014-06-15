@@ -140,27 +140,7 @@ filtering g (x:.xs) = lift2 (\ok -> if ok then (x:.) else id) (g x) (filtering g
 
 
 
--- go through the list and return the first element that satisfies the predicate
--- if there is no such element return Empty
 
--- |
---
--- >>> findA (Id . even) (4 :. 5 :. 6 :. Nil)
--- Id (Full 4)
--- >>> findA (Id . even) (7 :. 5 :. 8 :. Nil)
--- Id (Empty)
---
-{-findA ::
-  Applicative f =>
-  (a -> f Bool)
-  -> List a
-  -> f (Optional a)
-findA _ Nil     = pure Empty
---     (Bool -> List a -> Optional a) -> f Bool -> f (List a) -> f (Optional a)
-findA g (x:.xs) = lift2 finder (g x) (pure xs)
-                  -- Bool -> List a -> Optional a
-                  where finder ok l = if ok then Full x else Empty
--}
 
 -----------------------
 -- SUPPORT LIBRARIES --

@@ -52,7 +52,7 @@ the contents of a
 
 ============ b.txt
 the contents of b
-
+ 
 ============ c.txt
 the contents of c
 
@@ -63,7 +63,7 @@ main ::
   IO ()
 main = do x <- getArgs
           case x of Nil    -> return ()
-                    (x:.xs)-> run x
+                    (a:._)-> run a
 
 type FilePath =
   Chars
@@ -72,7 +72,7 @@ type FilePath =
 run ::
   Chars
   -> IO ()
-run x = (\(a,b) -> printFiles =<< (getFiles $ lines b)) =<< getFile x
+run x = getFile x >>= (\(_,b) -> (getFiles $ lines b) >>= printFiles ) 
 
 
 getFiles ::
@@ -90,9 +90,11 @@ getFile a = do
 printFiles ::
   List (FilePath, Chars)
   -> IO ()
-printFiles ((a,b):.xs) =  do printFile a b
+printFiles = void . sequence . map (uncurry printFile)
+
+{-printFiles ((a,b):.xs) =  do printFile a b
                              printFiles xs
-printFiles Nil         = return ()
+printFiles Nil         = return ()-}
 
 printFile ::
   FilePath

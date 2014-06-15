@@ -85,7 +85,7 @@ instance Bind Id where
 -- [1,1,2,2,3,3]
 instance Bind List where
   (=<<) _ Nil     = Nil
-  (=<<) g (x:.xs) = (g x) ++ (g =<< xs )
+  (=<<) g (x:.xs) = (g x) ++ (g =<< xs)
     -- foldRight (map f l) (:.) Nil
 
 -- | Binds a function on an Optional.
