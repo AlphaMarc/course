@@ -7,7 +7,7 @@ import Course.Core
 import Course.Functor
 import Course.Id
 import Course.List
-import Course.Optional
+import Course.Optional 
 import qualified Prelude as P
 
 class Functor f => Apply f where

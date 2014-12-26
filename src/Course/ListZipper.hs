@@ -65,16 +65,15 @@ data MaybeListZipper a =
 -- >>> (+1) <$> (zipper [3,2,1] 4 [5,6,7])
 -- [4,3,2] >5< [6,7,8]
 instance Functor ListZipper where
-  (<$>) =
-    error "todo"
+  (<$>) g (ListZipper l a r) = ListZipper (g <$> l) (g a) (g <$> r)
 
 -- | Implement the `Functor` instance for `MaybeListZipper`.
 --
 -- >>> (+1) <$> (IsZ (zipper [3,2,1] 4 [5,6,7]))
 -- [4,3,2] >5< [6,7,8]
 instance Functor MaybeListZipper where
-  (<$>) =
-    error "todo"
+  (<$>) g (IsZ (ListZipper l a r)) = IsZ (ListZipper (g <$> l) (g a) (g <$> r))
+  (<$>) _ IsNotZ = IsNotZ
 
 -- | Create a `MaybeListZipper` positioning the focus at the head.
 --
@@ -86,10 +85,9 @@ instance Functor MaybeListZipper where
 --
 -- prop> xs == toListZ (fromList xs)
 fromList ::
-  List a
-  -> MaybeListZipper a
-fromList =
-  error "todo"
+  List a -> MaybeListZipper a
+fromList (x:.xs) = IsZ (ListZipper Nil x xs)
+fromList Nil = IsNotZ
 
 -- | Retrieve the `ListZipper` from the `MaybeListZipper` if there is one.
 --
@@ -99,8 +97,9 @@ fromList =
 toOptional ::
   MaybeListZipper a
   -> Optional (ListZipper a)
-toOptional =
-  error "todo"
+toOptional (IsZ lz) = Full lz
+toOptional IsNotZ = Empty 
+  
 
 zipper ::
   [a]
@@ -161,8 +160,7 @@ asMaybeZipper f (IsZ z) =
 toList ::
   ListZipper a
   -> List a
-toList =
-  error "todo"
+toList (ListZipper l a r) = (reverse l) ++ a:.Nil ++ r 
 
 -- | Convert the given (maybe) zipper back to a list.
 toListZ ::
@@ -184,8 +182,7 @@ withFocus ::
   (a -> a)
   -> ListZipper a
   -> ListZipper a
-withFocus =
-  error "todo"
+withFocus f (ListZipper l a r) = ListZipper l (f a) r 
 
 -- | Set the focus of the zipper to the given value.
 -- /Tip:/ Use `withFocus`.
@@ -199,8 +196,7 @@ setFocus ::
   a
   -> ListZipper a
   -> ListZipper a
-setFocus =
-  error "todo"
+setFocus a (ListZipper l _ r) = ListZipper l a r
 
 -- A flipped infix alias for `setFocus`. This allows:
 --
@@ -222,9 +218,8 @@ setFocus =
 hasLeft ::
   ListZipper a
   -> Bool
-hasLeft =
-  error "todo"
-
+hasLeft (ListZipper Nil _ _) = False
+hasLeft (ListZipper _ _ _) = True
 -- | Returns whether there are values to the right of focus.
 --
 -- >>> hasRight (zipper [1,0] 2 [3,4])
@@ -235,8 +230,9 @@ hasLeft =
 hasRight ::
   ListZipper a
   -> Bool
-hasRight =
-  error "todo"
+hasRight (ListZipper _ _ Nil) = False
+hasRight (ListZipper _ _ _) = True
+
 
 -- | Seek to the left for a location matching a predicate, starting from the
 -- current one.
