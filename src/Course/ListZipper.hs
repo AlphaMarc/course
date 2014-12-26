@@ -219,7 +219,7 @@ hasLeft ::
   ListZipper a
   -> Bool
 hasLeft (ListZipper Nil _ _) = False
-hasLeft (ListZipper _ _ _) = True
+hasLeft (ListZipper (x:.xs) _ _) = True
 -- | Returns whether there are values to the right of focus.
 --
 -- >>> hasRight (zipper [1,0] 2 [3,4])
@@ -233,6 +233,16 @@ hasRight ::
 hasRight (ListZipper _ _ Nil) = False
 hasRight (ListZipper _ _ _) = True
 
+-- | Returns the focused on element
+--
+-- >>> focus (zipper [1,0] 2 [3,4])
+-- 2
+--
+-- >>> focus (zipper [] 0 [1,2])
+-- 0
+focus :: 
+  ListZipper a -> a
+focus (ListZipper _ a _) = a
 
 -- | Seek to the left for a location matching a predicate, starting from the
 -- current one.
@@ -244,8 +254,9 @@ findLeft ::
   (a -> Bool)
   -> ListZipper a
   -> MaybeListZipper a
-findLeft =
-  error "todo"
+findLeft p (ListZipper (x:.xs) a r) = if p a then IsZ (ListZipper (x:.xs) a r) else (findLeft p (ListZipper xs x r))
+findLeft p (ListZipper Nil a r) = if p a then IsZ (ListZipper Nil a r) else IsNotZ
+
 
 -- | Seek to the right for a location matching a predicate, starting from the
 -- current one.
@@ -257,8 +268,8 @@ findRight ::
   (a -> Bool)
   -> ListZipper a
   -> MaybeListZipper a
-findRight =
-  error "todo"
+findRight p (ListZipper l a (x:.xs)) = if p a then IsZ (ListZipper l a (x:.xs)) else (findRight p (ListZipper l x xs))
+findRight p (ListZipper l a Nil) = if p a then IsZ (ListZipper l a Nil) else IsNotZ
 
 -- | Move the zipper left, or if there are no elements to the left, go to the far right.
 --
@@ -505,8 +516,8 @@ start =
 deletePullLeft ::
   ListZipper a
   -> MaybeListZipper a
-deletePullLeft =
-  error "todo"
+deletePullLeft = error "todo"
+
 
 -- | Delete the current focus and pull the right values to take the empty position.
 --
