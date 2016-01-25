@@ -281,8 +281,7 @@ findRight p (ListZipper l a Nil) = if p a then IsZ (ListZipper l a Nil) else IsN
 moveLeftLoop ::
   ListZipper a
   -> ListZipper a
-moveLeftLoop =
-  error "todo"
+moveLeftLoop lz = if hasLeft lz then 
 
 -- | Move the zipper right, or if there are no elements to the right, go to the far left.
 --
@@ -307,8 +306,8 @@ moveRightLoop =
 moveLeft ::
   ListZipper a
   -> MaybeListZipper a
-moveLeft =
-  error "todo"
+moveLeft (ListZipper (x:.xs) a r) = ListZipper xs x (a:.r)
+moveLeft (ListZipper Nil a (x:.xs)) = 
 
 -- | Move the zipper one position to the right.
 --
@@ -350,7 +349,7 @@ swapRight =
   error "todo"
 
 -- | Drop all values to the left of the focus.
---
+-- 
 -- >>> dropLefts (zipper [3,2,1] 4 [5,6,7])
 -- [] >4< [5,6,7]
 --

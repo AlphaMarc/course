@@ -31,6 +31,7 @@ import qualified Numeric as N
 data List t =
   Nil
   | t :. List t
+ 
   deriving (Eq, Ord)
 
 -- Right-associative
@@ -68,12 +69,13 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- prop> x `headOr` infinity == 0
 --
 -- prop> x `headOr` Nil == x
+
 headOr ::
   a
   -> List a
   -> a
-headOr _ (h :. _) = h
-headOr a Nil = a
+headOr def Nil = def
+headOr _   (x:._)   = x 
 
 
 -- | The product of the elements of a list.
@@ -86,10 +88,8 @@ headOr a Nil = a
 product ::
   List Int
   -> Int
-product (h :. t) =
-  h * product t
-
-product Nil = 1 
+product (x :. xs) = x * product xs
+product Nil = 1
 
 
 -- | Sum the elements of the list.
@@ -104,9 +104,7 @@ product Nil = 1
 sum ::
   List Int
   -> Int
-sum (h :. t) =
-  h + sum t
-
+sum (h :. t) = h + sum t
 sum Nil = 0
 
 -- | Return the length of the list.
